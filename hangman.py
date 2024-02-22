@@ -190,11 +190,34 @@ class Hangman:
             else:
                 current_letters.append("_")
         return " ".join(current_letters)
+    
+    def _new_game(self):
+        self._target_word = self._select_word()
+        self._restart_game()
+
+    def _restart_game(self):
+        self._guessed_letters = set()
+        self._wrong_guesses = 0
+        self._guessed_word = self._build_guessed_word()
+        # Restart GUI
+        self._canvas.erase()
+        self._draw_scaffold()
+        for letter in ascii_uppercase:
+            self._window[f"-letter-{letter}-"].update(disabled=False)
+        self._window["-DISPLAY-WORD-"].update(self._guessed_word)
 
     def read_event(self):
         event = self._window.read()
         event_id = event[0] if event is not None else None
         return event_id
+    
+    def process_event(self, event):
+        if event[:8] == "-letter-":
+            self._play(letter=event[8])
+        elif event == "-RESTART-":
+            self._restart_game()
+        elif event == "-NEW-":
+            self._new_game()
     
     def close(self):
         self._window.close()
